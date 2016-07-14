@@ -35,29 +35,16 @@ router.get('/:content_id', function(req, res, next) {
 });
 */
 
-router.get('/', function(req, res, next) { 
-	console.log("peeple get");
-});
 // register 
 router.post('/', function(req, res, next){ 
-	console.log("content : "+ req.body.content);
-	/*
-    connection.query('insert into people(name, seatno, type, password) values (?, ?, ?, ?);', [req.body.title, req.body.content], function (error, info){
+    connection.query('insert into people(name, seatno, type, password) values (?, ?, ?, ?);', [req.body.name, req.body.seatno, 0, req.body.password], function (error, info){
         if (error == null){
-            connection.query('select * from anomy_board where id=?;', [info.insertId], function (error, cursor){
-                if (cursor.length > 0) { 
-                    res.json({
-                        result : true, id : cursor[0].id, title : cursor[0].title, timestamp :cursor[0].timestamp,
-                    });
-                }
-                else
-                    res.status(503).json({ result : false, reason : "Cannot post article"});
-            });
+        	res.status(200).json(info);
         }
         else
             res.status(503).json(error);
     });
-    */
+    
 });
 
 module.exports = router;
