@@ -9,12 +9,14 @@ var connection =mysql.createConnection({
     'database' :'maestro',
 });
 
+// show list 
 router.get('/', function(req, res, next) { 
 	connection.query('select id, title, timestamp from anomy_board '+'order by timestamp desc;', function (error, cursor){
 		res.json(cursor);
 	});
 });
 
+// show detail
 router.get('/:content_id', function(req, res, next) {
     var id = req.params.content_id;
     connection.query('select * from anomy_board where id=?;',[id], function (error, cursor){
@@ -31,6 +33,7 @@ router.get('/:content_id', function(req, res, next) {
     });
 });
 
+// insert 
 router.post('/', function(req, res, next){ 
     connection.query('insert into anomy_board(title, content) values (?, ?);', [req.body.title, req.body.content], function (error, info){
         if (error == null){
@@ -48,4 +51,5 @@ router.post('/', function(req, res, next){
             res.status(503).json(error);
     });
 });
+
 module.exports = router;
