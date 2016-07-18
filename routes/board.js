@@ -19,7 +19,7 @@ router.get('/', function(req, res, next) {
 // show detail
 router.get('/:content_id', function(req, res, next) {
     var id = req.params.content_id;
-    connection.query('select * from anomy_board where id=?;',[id], function (error, cursor){
+    connection.query('select * from board where id=?;',[id], function (error, cursor){
         if(error == null){    
             if (cursor.length > 0) 
                 res.json(cursor[0]);
@@ -34,10 +34,16 @@ router.get('/:content_id', function(req, res, next) {
 });
 
 // insert 
-router.post('/', function(req, res, next){ 
-    connection.query('insert into anomy_board(title, content) values (?, ?);', [req.body.title, req.body.content], function (error, info){
+router.post('/', function(req, res, next){
+    var title = req.body.title;
+    var content = req.body.content;
+    var image = req.body.photo;
+    console.log(""+title+", "+content+", ");
+    console.log("image : " + image);
+    /* 
+    connection.query('insert into board(writerid, title, content, photo, timestamp) values (?, ?);', [req.body.title, req.body.content], function (error, info){
         if (error == null){
-            connection.query('select * from anomy_board where id=?;', [info.insertId], function (error, cursor){
+            connection.query('select * from board where id=?;', [info.insertId], function (error, cursor){
                 if (cursor.length > 0) { 
                     res.json({
                         result : true, id : cursor[0].id, title : cursor[0].title, timestamp :cursor[0].timestamp,
@@ -50,6 +56,7 @@ router.post('/', function(req, res, next){
         else
             res.status(503).json(error);
     });
+    */
 });
 
 module.exports = router;
