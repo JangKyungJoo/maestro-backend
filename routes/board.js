@@ -1,5 +1,16 @@
 var express = require('express');
 var mysql =require('mysql');
+var multer = require('multer');
+var multiparty = require('multiparty');
+var storage = multer.diskStorage({
+    destination: function(req, file, callback){
+	callback(null, './uploads');
+    },
+    filename: function(req, file, callback){
+	callback(null, file.fieldname+'-'+Date.now()+'.jpg');
+    }
+});
+var upload = multer({storage : storage}).single('photo');
 var router = express.Router();
 
 var connection =mysql.createConnection({
@@ -34,13 +45,33 @@ router.get('/:content_id', function(req, res, next) {
 });
 
 // insert 
-router.post('/', function(req, res, next){
+router.post('/',  function(req, res, next){
+    var form = new multiparty.Form();
+    form.parse(req, function(err, fields, files){
+	var title = fields.title;
+	var content = fields.content;
+	var len = Object.keys(fields).length;
+	
+	if(len>2){
+	}else{
+	}
+});
+/*
     var title = req.body.title;
     var content = req.body.content;
     var image = req.body.photo;
-    console.log(""+title+", "+content+", ");
-    console.log("image : " + image);
-    /* 
+    
+    console.log("title : " + title);
+    console.log("content : " + req.body.field);
+
+    upload(req, res, function(err){
+	if(err){
+	    res.status(503).json(err);
+	}
+	console.log('file upload success');
+    });
+*/  
+  /* 
     connection.query('insert into board(writerid, title, content, photo, timestamp) values (?, ?);', [req.body.title, req.body.content], function (error, info){
         if (error == null){
             connection.query('select * from board where id=?;', [info.insertId], function (error, cursor){
