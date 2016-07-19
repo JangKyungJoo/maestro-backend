@@ -1,5 +1,7 @@
 var express = require('express');
 var mysql =require('mysql');
+var multer = require('multer');
+var upload = multer({dest: 'uploads/'});
 var router = express.Router();
 
 var connection =mysql.createConnection({
@@ -34,7 +36,7 @@ router.get('/:content_id', function(req, res, next) {
 });
 
 // insert 
-router.post('/', function(req, res, next){
+router.post('/', upload.single('photo'), function(req, res, next){
     var title = req.body.title;
     var content = req.body.content;
     var image = req.body.photo;
