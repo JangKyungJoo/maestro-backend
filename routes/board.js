@@ -40,12 +40,12 @@ router.post('/', function(req, res, next){
     form.parse(req, function(err, fields, files){
         var title = fields.title;
         var content = fields.content;
-        var len = Objects.keys(fields).length;
+        var len = Object.keys(fields).length;
 
         if(len>2){
 
         }else{
-            connection.query('insert into board(writerid, title, content, photo, timestamp) values (?, ?, ?, ?, ?);', [1, title, content, null, Date.now()], function (error, info){
+            connection.query('insert into board(writerid, title, content, photoid) values (?, ?, ?, ?);', [1, title, content, null], function (error, info){
             if (error == null){
                 connection.query('select * from board where id=?;', [info.insertId], function (error, cursor){
                     if (cursor.length > 0) { 
