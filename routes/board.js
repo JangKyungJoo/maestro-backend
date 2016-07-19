@@ -57,8 +57,10 @@ router.post('/', function(req, res, next){
                         res.status(503).json({ result : false, reason : "Cannot post article"});
                 });
             }
-            else
+            else{
+		console.log(error);
                 res.status(503).json(error);
+	    }
             });
         }
     });
