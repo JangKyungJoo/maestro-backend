@@ -36,14 +36,21 @@ router.get('/:content_id', function(req, res, next) {
 
 // insert 
 router.post('/', function(req, res, next){
+    console.log("insert board");
     var form = new multiparty.Form();
     form.parse(req, function(err, fields, files){
         var title = fields.title;
         var content = fields.content;
         var len = Object.keys(fields).length;
-
+	var key = Object.keys(fields).forEach(function(name){
+		console.log("name : "+name);
+	});
+	var file = Object.keys(files).forEach(function(name){
+		console.log("file name : "+name);
+	});
+	console.log("len : "+len);
         if(len>2){
-
+		console.log("len > 3");
         }else{
             connection.query('insert into board(writerid, title, content, photoid) values (?, ?, ?, ?);', [1, title, content, null], function (error, info){
             if (error == null){
