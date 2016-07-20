@@ -41,14 +41,16 @@ router.post('/', function(req, res, next){
     form.parse(req, function(err, fields, files){
         var title = fields.title;
         var content = fields.content;
+        var file = files.photo;
         var len = Object.keys(fields).length;
-	var key = Object.keys(fields).forEach(function(name){
-		console.log("name : "+name);
-	});
-	var file = Object.keys(files).forEach(function(name){
-		console.log("file name : "+name);
-	});
-	console.log("len : "+len);
+        if(file == null){
+            console.log("no file");
+            console.log("title : " + title);
+            console.log("content : "+ content);
+        }else{
+            console.log("file : " + file);
+        }
+        /*
         if(len>2){
 		console.log("len > 3");
         }else{
@@ -70,6 +72,7 @@ router.post('/', function(req, res, next){
     	        }
             });
         }
+        */
     });
 });
 
