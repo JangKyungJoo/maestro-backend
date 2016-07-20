@@ -46,21 +46,21 @@ router.post('/', function(req, res, next){
 
         }else{
             connection.query('insert into board(writerid, title, content, photoid) values (?, ?, ?, ?);', [1, title, content, null], function (error, info){
-            if (error == null){
-                connection.query('select * from board where id=?;', [info.insertId], function (error, cursor){
-                    if (cursor.length > 0) { 
-                        res.json({
-                            result : true, id : cursor[0].id, title : cursor[0].title, timestamp :cursor[0].timestamp,
-                        });
-                    }
-                    else
-                        res.status(503).json({ result : false, reason : "Cannot post article"});
-                });
-            }
-            else{
-		console.log(error);
-                res.status(503).json(error);
-	    }
+                if (error == null){
+                    connection.query('select * from board where id=?;', [info.insertId], function (error, cursor){
+                        if (cursor.length > 0) { 
+                            res.json({
+                                result : true, id : cursor[0].id, title : cursor[0].title, timestamp :cursor[0].timestamp,
+                            });
+                        }
+                        else
+                            res.status(503).json({ result : false, reason : "Cannot post article"});
+                    });
+                }
+                else{
+    		        console.log(error);
+                    res.status(503).json(error);
+    	        }
             });
         }
     });
