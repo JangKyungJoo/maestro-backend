@@ -68,63 +68,64 @@ router.get('/:content_id', function(req, res, next) {
 
 // insert 
 router.post('/:id', function(req, res, next){
-    var form = new multiparty.Form();
-    form.parse(req, function(err, fields, files){
-        var title = fields.title;
-        var content = fields.content;
-	console.log("files : " + files.photo);
-	if(files.photo != undefined)
-            var file = files.photo[0];
-        //var len = Object.keys(fields).length;
-        if(file == null){
-	    connection.query('insert into board(writerid, title, content) values (?, ?, ?);', [1, title, content], function(err, info){
-		if(err==null){
-			connection.query('select * from board where id=?;', [info.insertId], function(err, cursor){
-				if(cursor.length > 0){
-					res.json({
-						result : true, id : cursor[0].id, title : cursor[0].title, timestamp : cursor[0].timestamp
-					});
-				}else{
-					res.status(503).json({  result: false, reason : "Cannot post article"});
-				}
-			});
-		}else{
-			console.log(err);
-			res.status(503).json(err);
-		}
-	    });
-        }else{
-  	    upload(req, res, function(err){
-		if(err)
-			console.log("upload err : "+err);
-		else
-			console.log("upload succes");
-	    });
-	    console.log("file :  "+file.name+", "+file.path+", "+file.size);
-	    connection.query('insert into board(writerid, title, content, photoid) values (?, ?, ?, ?);', [1, title, content, 1], function(err, info){
-		if(err==null){
-			connection.query('insert into photo(postid, path) values (?, ?);', [info.insertId, file.path], function(err, info){
-			if(err==null){
-				connection.query('select * from board where id=?;', [info.insertId], function(err, cursor){
-					if(cursor.length > 0){
-						res.json({
-							result : true, id : cursor[0].id, title : cursor[0].title, timestamp : cursor[0].timestamp, photoid : cursor[0].photoid
-						});
-					}else{
-						res.status(503).json({result : false, reason : "Cannot post article"});
-					}
-				});
-			}else{
-				console.log(err);
-				res.status(503).json(err);
-			}
-			});
-		}else{
-			console.log(err);
-			res.status(503).json(err);
-		}
-	    });
-	}
+    var fid = req.params.id;
+    connection.query('select id from people where fuserid=?;', [fid], function(err, cursor){
+	if(err == null){
+		fid = cursor[0].id;
+    	var form = new multiparty.Form();
+   		form.parse(req, function(err, fields, files){
+       		var title = fields.title;
+        	var content = fields.content;
+            if(files.photo != undefined)
+            	var file = files.photo[0];
+        	if(file == null){
+	    		connection.query('insert into board(writerid, title, content) values (?, ?, ?);', [fid, title, content], function(err, info){
+    				if(err==null){
+    					connection.query('select * from board where id=?;', [info.insertId], function(err, cursor){
+    						if(cursor.length > 0){
+    					        res.json({result : true, id : cursor[0].id, title : cursor[0].title, timestamp : cursor[0].timestamp});
+    						}else{
+    					       res.status(503).json({  result: false, reason : "Cannot post article"});
+    						}
+    					});
+    				}else{
+    					console.log(err);
+    					res.status(503).json(err);
+    				}
+	    	  });
+        	}else{
+  	    		upload(req, res, function(err){
+    				if(err)
+    					console.log("upload err : "+err);
+	    		});
+	    		console.log("file :  "+file.name+", "+file.path+", "+file.size);
+	    		connection.query('insert into board(writerid, title, content, photoid) values (?, ?, ?, ?);', [1, title, content, 1], function(err, info){
+    				if(err==null){
+    					connection.query('insert into photo(postid, path) values (?, ?);', [info.insertId, file.path], function(err, info){
+        					if(err==null){
+        						connection.query('select * from board where id=?;', [info.insertId], function(err, cursor){
+            						if(cursor.length > 0){
+            							res.json({result : true, id : cursor[0].id, title : cursor[0].title, timestamp : cursor[0].timestamp, photoid : cursor[0].photoid});
+            						}else{
+            							res.status(503).json({result : false, reason : "Cannot post article"});
+            						}
+        						});
+        					}else{
+        						console.log(err);
+        						res.status(503).json(err);
+        					}
+    					});
+    				}else{
+    				    console.log(err);
+    				    res.status(503).json(err);
+    				}
+	    		});
+		    }
+   	    });
+    }else{
+        console.log("err : "+err);
+        res.status(503).json(err);
+    }
     });
 });
 
