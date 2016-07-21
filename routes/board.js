@@ -67,7 +67,7 @@ router.get('/:content_id', function(req, res, next) {
 });
 
 // insert 
-router.post('/', function(req, res, next){
+router.post('/:id', function(req, res, next){
     var form = new multiparty.Form();
     form.parse(req, function(err, fields, files){
         var title = fields.title;
