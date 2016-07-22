@@ -34,9 +34,10 @@ router.get('/:content_id', function(req, res, next) {
 });
 
 // insert 
-router.post('/', function(req, res, next){ 
-    connection.query('insert into anomy_board(title, content) values (?, ?);', [req.body.title, req.body.content], function (error, info){
+router.post('/:id', function(req, res, next){ 
+    connection.query('insert into anomy_board(title, content, writerid) values (?, ?, ?);', [req.body.title, req.body.content, req.params.id], function (error, info){
         if (error == null){
+	    console.log("writer id : " + req.params.id);
             connection.query('select * from anomy_board where id=?;', [info.insertId], function (error, cursor){
                 if (cursor.length > 0) { 
                     res.json({
@@ -54,14 +55,29 @@ router.post('/', function(req, res, next){
 
 //delete
 router.delete('/:id', function(req, res){
-    connection.query('delete from anomy_board where id=?;', [req,params.id], function(err, info){
-	if(err==null){
-		res.json({result : true});
-	}else{
-		console.log("err : "+err);
+    var uid = req.params.id;
+    var pid = req.query.articleid;
+    connection.query('select writerid from anomy_board where id=?;', [pid], function(err, cursor){
+	if(err==null && cursor.length>0){
+	    if(cursor[0].writerid == uid){
+		connection.query('delete from anomy_board where id=?;', [pid], function(err, info){
+		    if(err==null){
+			connection.query('select * from anomy_board order by timestamp desc;', function(err, cursor){
+			    if(err==null)
+				res.json(cursor);
+			    else
+				res.status(500).json({result : false});
+			});
+		    }else{
+			res.status(501).json({result : false});
+		    }
+		});
+	    }else{
 		res.status(503).json({result : false});
+	    }
+	}else{
+	    res.status(502).json({result : false});
 	}
     });
 });
-
 module.exports = router;

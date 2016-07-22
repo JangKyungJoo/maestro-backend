@@ -89,11 +89,12 @@ router.post('/:id', function(req, res, next){
     						if(cursor.length > 0){
     					        res.json({result : true, id : cursor[0].id, title : cursor[0].title, timestamp : cursor[0].timestamp});
     						}else{
+						console.log("err1 : "+err);
     					       res.status(503).json({  result: false, reason : "Cannot post article"});
     						}
     					});
     				}else{
-    					console.log(err);
+    					console.log("err2 : "+err);
     					res.status(503).json(err);
     				}
 	    	  });
@@ -103,24 +104,25 @@ router.post('/:id', function(req, res, next){
     					console.log("upload err : "+err);
 	    		});
 	    		console.log("file :  "+file.name+", "+file.path+", "+file.size);
-	    		connection.query('insert into board(writerid, title, content, photoid) values (?, ?, ?, ?);', [1, title, content, 1], function(err, info){
+	    		connection.query('insert into board(writerid, title, content, photoid) values (?, ?, ?, ?);', [fid, title, content, 1], function(err, info){
     				if(err==null){
-    					connection.query('insert into photo(postid, path) values (?, ?);', [info.insertId, file.path], function(err, info){
+    					connection.query('insert into photo(postid, path) values (?, ?);', [info.insertId, file.path], function(err, info2){
         					if(err==null){
         						connection.query('select * from board where id=?;', [info.insertId], function(err, cursor){
             						if(cursor.length > 0){
             							res.json({result : true, id : cursor[0].id, title : cursor[0].title, timestamp : cursor[0].timestamp, photoid : cursor[0].photoid});
             						}else{
+								console.log("err3 : "+err);
             							res.status(503).json({result : false, reason : "Cannot post article"});
             						}
         						});
         					}else{
-        						console.log(err);
+        						console.log("err4 : "+err);
         						res.status(503).json(err);
         					}
     					});
     				}else{
-    				    console.log(err);
+    				    console.log("err5 : "+ err);
     				    res.status(503).json(err);
     				}
 	    		});
@@ -135,13 +137,28 @@ router.post('/:id', function(req, res, next){
 
 //delete content
 router.delete('/:id', function(req, res){
-    connection.query('delete from board where id=?;', [req.params.id], function(err, info){
-	if(err!=null){
-		console.log("err : "+err);
-		res.status(503).json(err);
+    var uid = req.params.id;
+    var pid = req.query.articleid;
+    connection.query('select p.id from people p, board b where p.id=b.writerid and p.fuserid=? and b.id=?;', [uid, pid], function(err, cursor){
+	if(err == null && cursor.length == 1){
+	    connection.query('delete from board where id=?;', [pid], function(err, info){
+		if(err == null){
+		    connection.query('select b.id, b.title, b.timestamp, p.name from board b, people p where b.writerid=p.id order by timestamp desc;', function(err, cur){
+			if(err == null){
+			    res.json(cur);
+			}else{
+			    res.status(500).json({result : false});
+			}
+		    });
+		}else{
+			res.status(501).json({result : false});
+		}
+	    });
+	}else if(err == null && cursor.length == 0){
+		res.status(502).json({result : false});
 	}else{
-		res.json({result : true});
-	}
+		res.status(503).json({result : false});
+	}	
     });
 });
 module.exports = router;
