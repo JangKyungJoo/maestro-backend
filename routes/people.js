@@ -63,4 +63,17 @@ router.post('/', function(req, res, next){
     
 });
 
+// user profile
+router.get('/profile/:id', function(req, res, next){
+    var id = req.params.id;
+    connection.query('select * from people where fuserid=?;', [id], function(err, cursor){
+	if(err==null){
+	    res.json({result : true, name : cursor[0].name, profile : cursor[0].profile});
+	}else{
+	    console.log("err : "+err);
+	    res.status(503).json({result : false});
+	}
+    });
+});
+
 module.exports = router;

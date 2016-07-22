@@ -33,28 +33,32 @@ router.get('/tmp/:path', function(req, res){
 
 // show list
 router.get('/', function(req, res, next) { 
-	connection.query('select id, title, timestamp from board '+'order by timestamp desc;', function (error, cursor){
-		res.json(cursor);
+	connection.query('select b.id, b.title, b.timestamp, p.name  from  board b, people p where b.writerid=p.id '+'order by timestamp desc;', function (error, cursor){
+		if(error==null){
+			res.json(cursor);
+		}else{
+			console.log("err : "+error);
+			res.status(503).json({result : false});
+		}
 	});
 });
 
 // show detail
 router.get('/:content_id', function(req, res, next) {
     var id = req.params.content_id;
-    connection.query('select * from board where id=?;',[id], function (error, cursor){
+    connection.query('select b.id, b.writerid, b.title, b.content, b.photoid, b.timestamp, p.name  from board b, people p where p.id=b.writerid and b.id=?;',[id],  function (error, cursor){
         if(error == null){    
             if (cursor.length > 0){
 		if(cursor[0].photoid == 1){
 			connection.query('select path from photo where postid=?;', [id], function(error, cur){
 				if(error==null){
-					res.json({
-						result : true, writerid : cursor[0].writerid, title : cursor[0].title, content : cursor[0].content, photopath : cur[0].path, timestamp : cursor[0].timestamp});
+					res.json({result : true, photopath : cur[0].path, id : cursor[0].id, title : cursor[0].title, content : cursor[0].content, writer : cursor[0].name, timestamp : cursor[0].timestamp});
 				}else{			
 					res.status(503).json({result : false, reason : "Cannot find selected article"});
 				}
 			});
 		}else
-                    res.json(cursor[0]);
+                    res.json({result : true, id : cursor[0].id, title : cursor[0].title, content : cursor[0].content, writer : cursor[0].name, timestamp : cursor[0].timestamp});
             }else{
                 res.status(503).json({ 
                     result : false, reason : "Cannot find selected article"
@@ -129,4 +133,15 @@ router.post('/:id', function(req, res, next){
     });
 });
 
+//delete content
+router.delete('/:id', function(req, res){
+    connection.query('delete from board where id=?;', [req.params.id], function(err, info){
+	if(err!=null){
+		console.log("err : "+err);
+		res.status(503).json(err);
+	}else{
+		res.json({result : true});
+	}
+    });
+});
 module.exports = router;

@@ -52,4 +52,16 @@ router.post('/', function(req, res, next){
     });
 });
 
+//delete
+router.delete('/:id', function(req, res){
+    connection.query('delete from anomy_board where id=?;', [req,params.id], function(err, info){
+	if(err==null){
+		res.json({result : true});
+	}else{
+		console.log("err : "+err);
+		res.status(503).json({result : false});
+	}
+    });
+});
+
 module.exports = router;
