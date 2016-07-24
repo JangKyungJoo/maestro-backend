@@ -49,6 +49,7 @@ router.get('/:content_id', function(req, res, next) {
     connection.query('select b.id, b.writerid, b.title, b.content, b.photoid, b.timestamp, p.name  from board b, people p where p.id=b.writerid and b.id=?;',[id],  function (error, cursor){
         if(error == null){    
             if (cursor.length > 0){
+		// if post has photo
 		if(cursor[0].photoid == 1){
 			connection.query('select path from photo where postid=?;', [id], function(error, cur){
 				if(error==null){
@@ -82,6 +83,7 @@ router.post('/:id', function(req, res, next){
         	var content = fields.content;
             if(files.photo != undefined)
             	var file = files.photo[0];
+		// if post has no photo
         	if(file == null){
 	    		connection.query('insert into board(writerid, title, content) values (?, ?, ?);', [fid, title, content], function(err, info){
     				if(err==null){
@@ -99,6 +101,7 @@ router.post('/:id', function(req, res, next){
     				}
 	    	  });
         	}else{
+		// if post has photo
   	    		upload(req, res, function(err){
     				if(err)
     					console.log("upload err : "+err);

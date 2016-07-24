@@ -10,7 +10,7 @@ var connection =mysql.createConnection({
     'database' :'maestro',
 });
 
-
+// get id from facebook user id
 router.get('/:id', function(req, res, next) {
 	var id = req.params.id; 
 	connection.query('select * from people where fuserid=?;', [id], function(err, cursor){
@@ -63,7 +63,7 @@ router.post('/', function(req, res, next){
     
 });
 
-// user profile
+// get user profile
 router.get('/profile/:id', function(req, res, next){
     var id = req.params.id;
     connection.query('select * from people where fuserid=?;', [id], function(err, cursor){
